@@ -3,7 +3,7 @@ var router = express.Router();
 const Task = require("../src/models/taskModel");
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
+router.get('/', async (req, res, next) => {
 
   const tasks = await Task.find({})
   if(tasks){
@@ -15,7 +15,7 @@ router.get('/', function(req, res, next) {
 });
 
 
-router.post("/tasks", (req, res) => {
+router.post("/tasks", async (req, res) => {
   const task = new Task(req.body);
   try {
       await task.save()
@@ -27,7 +27,7 @@ router.post("/tasks", (req, res) => {
 });
 
 
-router.get("/view/:id", (req, res) => {
+router.get("/view/:id", async (req, res) => {
 
 
   const _id = req.params.id;

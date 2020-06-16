@@ -3,7 +3,10 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-
+const dotenv = require("dotenv").config({
+  path: "/Users/cavalos/sandbox/nodejs/practice-nodejs/task-manager/.env",
+});
+console.log('x   ',dotenv);
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var tasksRouter = require("./routes/tasks");

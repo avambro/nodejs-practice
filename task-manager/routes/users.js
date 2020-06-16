@@ -3,7 +3,7 @@ var router = express.Router();
 const User = require('../src/models/userModel')
 
 /* GET users listing. */
-router.get('/', async (req, res, next) {
+router.get('/', async (req, res, next) => {
 
   try {
     const users = await User.find({})
@@ -15,8 +15,13 @@ router.get('/', async (req, res, next) {
 
 });
 
+router.get('/register', (req, res) => {
+
+    res.render('users/register', { title: 'Sign up Users' });
+});
+
 /* POST inserting users . */
-router.post('/user/create', async (req,res,next)=>{
+router.post('/register', async (req,res,next)=>{
 
     const user = new User(req.body);
     try {
