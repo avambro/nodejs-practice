@@ -5,27 +5,25 @@ const Task = require("../src/models/taskModel");
 /* GET users listing. */
 router.get('/', function(req, res, next) {
 
-  Task.find({})
-    .then((tasks) => {
-      res.send(tasks);
-    })
-    .catch((e) => {
-      res.status(500).send();
-    });
+  const tasks = await Task.find({})
+  if(tasks){
+    res.send(201).send(tasks)
+  }else{
+    res.status(500).send();
+  }
+
 });
 
 
 router.post("/tasks", (req, res) => {
   const task = new Task(req.body);
+  try {
+      await task.save()
+      res.status(201).send(task)
+  } catch (e) {
+      res.status(400).send(e)
+  }
 
-  Task
-    .save()
-    .then(() => {
-      res.status(201).send(task);
-    })
-    .catch((e) => {
-      res.status(400).send(e);
-    });
 });
 
 
@@ -33,18 +31,13 @@ router.get("/view/:id", (req, res) => {
 
 
   const _id = req.params.id;
+  const task = await Task.findById(_id)
+  if(task){
+    res.status(202).send(task);
+  }else{
+    res.status(500).send();
+  }
 
-  Task.findById(_id)
-    .then((task) => {
-      if (!task) {
-        return res.status(404).send();
-      }
-
-      res.send(task);
-    })
-    .catch((e) => {
-      res.status(500).send();
-    });
 });
 
 module.exports = router

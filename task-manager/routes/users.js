@@ -3,39 +3,72 @@ var router = express.Router();
 const User = require('../src/models/userModel')
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
+router.get('/', async (req, res, next) {
 
-  User.find({})
-    .then((users) => {
-      res.send(users);
-    })
-    .catch((e) => {
-      res.status(500).send();
-    });
+  try {
+    const users = await User.find({})
+    res.send(users)
+
+  } catch (e) {
+    res.status(500).send(e)
+  }
+
 });
 
 /* POST inserting users . */
-router.post('/user/create',(req,res,next)=>{
-  const user = new User(req.body)
-  user.save().then(()=>{
-    res.status(201).send(user)
-  }).catch((e)=>{
-    res.status(400).send(e)
+router.post('/user/create', async (req,res,next)=>{
+
+    const user = new User(req.body);
+    try {
+      await user.save()
+      res.status(201).send(user)
+    } catch (e) {
+
+    }
+
+})
+
+router.get('/user/:id',async (req,res,next)=>{
+
+   try {
+     const userId = req.body.id
+     const user = await User.findById(userId)
+     if(!user){
+       return res.status(404).send()
+     }
+
+   } catch (e) {
+     res.status(400).send(e);
+   }
+
+})
+
+
+router.patch('/user/:id',async(req,res,next)=>{
+  const updateStream = Object.keys(req.body)
+  const allowedFields = ['name','email','password','age']
+  const isValidOperation = updateStream.every((update) =>{
+    allowedFields.includes(update)
   })
+  if(!isValidOperation){
+    return res.status(400).send({error:'Invalid updates!'})
+  }
+  try {
+      const user = await User.findByIdAndUpdate(
+        req.param.id,
+        {name:req.body},
+        {
+          new : true,
+          runValidators: true
+        })
+        if(!user){
+          return res.status(404).send()
+        }
+        res.send(user);
+  } catch (e) {
+      return res.status(500).send()
+  }
 })
 
-router.get('/user/:id',(req,res,next)=>{
-  User.findById({ _id: req.param.id })
-    .then((user) => {
-      if(!user){
-        return res.status(404).send()
-      }
-
-      res.send(user)
-    })
-    .catch((e) => {
-      res.status(400).send(e);
-    });
-})
 
 module.exports = router;
