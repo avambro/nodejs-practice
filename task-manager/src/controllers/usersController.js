@@ -1,4 +1,4 @@
-const bcrypt = require("bcryptjs");
+//const bcrypt = require("bcryptjs");
 const User = require("../models/userModel");
 
 //list users
@@ -23,6 +23,7 @@ exports.create = (req, res) => {
 //* save user
 exports.store = async (req, res, next) => {
 
+  /*
   const str = Math.random().toString(36).substring(2)
   const hassPwd = await bcrypt.hash(str,11)
   //compare
@@ -33,6 +34,7 @@ exports.store = async (req, res, next) => {
     password: str,
     age: req.body.age,
   });
+  */
   try {
 
     await user.save();
@@ -54,7 +56,7 @@ exports.show = async (req, res, next) => {
     res.status(400).send(e);
   }
 };
-
+/*
 //* Update user
 exports.update = async (req, res, next) => {
   const updateStream = Object.keys(req.body);
@@ -66,14 +68,7 @@ exports.update = async (req, res, next) => {
     return res.status(400).send({ error: "Invalid updates!" });
   }
   try {
-    const user = await User.findByIdAndUpdate(
-      req.param.id,
-      { name: req.body },
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    const user = await User.findByIdAndUpdate(req.param.id,{name:req.body},{new: true,runValidators: true});
     if (!user) {
       return res.status(404).send();
     }
@@ -82,13 +77,14 @@ exports.update = async (req, res, next) => {
     return res.status(500).send();
   }
 };
+*/
 
-
-exports.updatedById = async(req,res,next)=>{
+// Update user by ID /users/:id
+exports.update = async(req,res,next)=>{
    const updateStream = Object.keys(req.body);
    const allowedFields = ["name", "email", "password", "age"];
    const isValidOperation = updateStream.every((update) => {
-     allowedFields.includes(update);
+     allowedFields.includes(update)
    });
 
    if (!isValidOperation) {
@@ -97,15 +93,14 @@ exports.updatedById = async(req,res,next)=>{
 
    try {
 
-      const user = await User.findById(userId);
-      updateStream.forEach((update)=> user[update] = req.body[update]);
+         const user = await User.findById(req.param.id);
+           updateStream.forEach((update)=> user[update] = req.body[update]);
 
          if (!user) {
            return res.status(404).send();
          }
          res.send(user);
-
-   } catch (e) {
+       } catch (e) {
 
    }
 
