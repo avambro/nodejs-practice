@@ -1,11 +1,15 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
-const conn = {
-	'user':'',
-	'pwd' :'',
-	'db':'libraryCollection'
-}
-const url = "mongodb+srv://"+conn.user+":"+conn.pwd+"@syscarcluster-ux8a6.mongodb.net/"+conn.db+"?retryWrites=true&w=majority";
+
+const url =
+  "mongodb+srv://" +
+  process.env.DB_USER +
+  ":" +
+  process.env.DB_PASSWORD +
+  "@syscarcluster-ux8a6.mongodb.net/" +
+  process.env.DB_NAME +
+  "?retryWrites=true&w=majority";
+
 mongoose.connect(url, { useNewUrlParser: true , useCreateIndex: true, useUnifiedTopology: true})
 var userModel = mongoose.model('User', {
 	name: {
@@ -30,8 +34,8 @@ var userModel = mongoose.model('User', {
 		minlength: 7,
 		trim:true,
 		validate(value){
-			if(value.toLowerCase().include('password')){
-				throw new Error('Password cannot contain "password"')
+			if(value.length <= 10){
+				throw new Error('Password cannot contain less than 10 chars')
 			}
 		}
 	},
