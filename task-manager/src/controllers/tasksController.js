@@ -31,3 +31,31 @@ exports.show = async (req, res) => {
     res.status(500).send();
   }
 };
+
+
+exports.update = async(req,res,next) => {
+
+  const updateStream = Object.keys(req.body);
+  const allowedFields = ["name", "email", "password", "age"];
+  const isValidOperation = updateStream.every((update) => {
+     allowedFields.includes(update)
+   });
+
+   if (!isValidOperation) {
+     return res.status(400).send({ error: "Invalid updates!" });
+   }
+
+   try {
+
+         const task = await Task.findById(req.param.id);
+           updateStream.forEach((update)=> task[update] = req.body[update]);
+
+         if (!task) {
+           return res.status(404).send();
+         }
+         res.send(task);
+       } catch (e) {
+
+   }
+
+}
