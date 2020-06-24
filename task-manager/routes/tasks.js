@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
 
-const taskController = require('../src/controllers/tasksController')
+const taskController = require('../src/controllers/TasksController')
 
 /* GET users listing. */
 router.get('/', taskController.index);

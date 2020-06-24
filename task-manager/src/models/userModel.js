@@ -1,7 +1,9 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
 const bcrypt = require("bcryptjs");
-
+const jwt = require('jsonwebtoken')
+const taskModel = require("./TaskModel")
+/*
 const url =
   "mongodb+srv://" +
   process.env.DB_USER +
@@ -13,7 +15,7 @@ const url =
 
 mongoose.connect(url, { useNewUrlParser: true , useCreateIndex: true, useUnifiedTopology: true})
 
-
+*/
 
 
 const userSchema = new mongoose.Schema({
@@ -48,14 +50,54 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
     validate(value) {
-      if (value < 0) {
+      if (value <= 0) {
         throw new Error("Age must be a postive number");
       }
     },
   },
 });
 
-// middleware to save pwd as Hash
+
+//* Set relation Task->User
+userSchema.virtual('tasks',{
+  ref:'TaskModel',
+  localField:'_id',
+  foreignField:'owner'
+})
+
+
+userSchema.methods.toJSON = function() {
+  const user = this;
+  const userObject = user.toObject()
+  delete userObject.password
+  delete userObject.tokens
+  return userObject
+}
+
+//* Login user generate a token to auth
+userSchema.methods.generateAuthtoken = async function(){
+  const user = this
+  const token = jwt.sign({ _id: user._id.toString() }, "mysaltstringexample");
+  user.tokens = user.tokens.concat({token})
+  await user.save()
+  return token
+}
+
+userSchema.statics.findByCredentials = async (email,password)=>{
+  const user =  await User.findOne({email})
+  if(!user){
+    throw new Error("Unable to login")
+  }
+  const isMatch = await bcrypt.compare(password,user.password)
+  if(!isMatch){
+    throw new Error("Unable to login.");
+  }
+  return user
+}
+
+
+
+//* middleware to save pwd as Hash
 userSchema.pre('save', async function (next){
 	const user = this
 
@@ -68,8 +110,14 @@ userSchema.pre('save', async function (next){
 
 })
 
+//* Delete user tasks when user is removed
 
-var userModel = mongoose.model('User',userSchema)
+userSchema.pre('removed',async (next)=>{
+  const user = this
+  await taskModel.deleteMany({owned:user._id})
+  next()
+})
 
 
-module.exports = userModel
+var UserModel = mongoose.model('User',userSchema)
+module.exports = UserModel

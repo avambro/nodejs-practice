@@ -1,15 +1,18 @@
 //const bcrypt = require("bcryptjs");
-const User = require("../models/userModel");
+const UserModel = require("../models/UserModel");
 
 //list users
 exports.index = async (req, res, next) => {
   try {
-    const users = await User.find({});
-    //res.send(users);
+    const users = await UserModel.find({});
+
+    res.status(201).json(users)
+    /*
     res.render("users/index", {
       title: "Users List",
       data: users,
-    });
+    });*/
+
   } catch (e) {
     res.status(500).send(e);
   }
@@ -35,6 +38,7 @@ exports.store = async (req, res, next) => {
     age: req.body.age,
   });
   */
+  const user = new UserModel(req.body)
   try {
 
     await user.save();
@@ -48,7 +52,7 @@ exports.store = async (req, res, next) => {
 exports.show = async (req, res, next) => {
   try {
     const userId = req.body.id;
-    const user = await User.findById(userId);
+    const user = await UserModel.findById(userId);
     if (!user) {
       return res.status(404).send();
     }
@@ -93,7 +97,7 @@ exports.update = async(req,res,next)=>{
 
    try {
 
-         const user = await User.findById(req.param.id);
+         const user = await UserModel.findById(req.param.id);
            updateStream.forEach((update)=> user[update] = req.body[update]);
 
          if (!user) {
@@ -105,4 +109,16 @@ exports.update = async(req,res,next)=>{
    }
 
 
+}
+
+
+exports.login = async(req,res,next) => {
+  try {
+    const user = await UserModel.findByCredentials(req.body.email,req.body.password)
+    const token = await UserModel.generateAuthToken()
+    res.send({user,token})
+
+  } catch (error) {
+    res.status(400).send()
+  }
 }

@@ -1,4 +1,4 @@
-const MongoClient= require('mongodb').MongoClient;
+const mongoose = require("mongoose");
 
 const url =
   "mongodb+srv://" +
@@ -9,15 +9,27 @@ const url =
   process.env.DB_NAME +
   "?retryWrites=true&w=majority";
 
+  /*
+const options = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useCreateIndex: true,
+  useFindAndModify: false,
+  autoIndex: false, // Don't build indexes
+  poolSize: 10, // Maintain up to 10 socket connections
+  serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
+  socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+  family: 4, // Use IPv4, skip trying IPv6
+};
+*/
 
-const client = new MongoClient(uri, { useNewUrlParser: true });
-client.connect(err => {
-if(err){
-	return console.log('Unable to connect')
-}
+mongoose.connect(url, {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  useUnifiedTopology: true,
+}).catch(error=>handleError(error))
 
-  const db = client.db(conn.db);
-  const genre = db.collection('genres');
 
-  client.close();
+mongoose.connection.on("error", (err) => {
+  logError(err);
 });

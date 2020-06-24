@@ -1,4 +1,4 @@
-const Task = require("../models/taskModel")
+const Task = require("../models/TaskModel")
 
 /* GET display tasls */
 exports.index = async (req, res, next) => {
